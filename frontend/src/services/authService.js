@@ -13,10 +13,34 @@ class AuthService {
       localStorage.setItem(this.refreshTokenKey, refreshToken);
     }
   }
-
+  
   clearTokens() {
     localStorage.removeItem(this.tokenKey);
     localStorage.removeItem(this.refreshTokenKey);
+  }
+
+  // Register user
+  async register(userData) {
+    try {
+      const response = await api.post('/auth/register', userData);
+      const { token, refreshToken } = response.data;
+      
+      // Automatically set tokens after successful registration
+      this.setTokens(token, refreshToken);
+      
+      return {
+        success: true,
+        data: response.data
+      };
+    } catch (error) {
+      console.error('Registration error:', error);
+      
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Registration failed',
+        errors: error.response?.data?.errors || []
+      };
+    }
   }
 
   // Login user
@@ -37,8 +61,7 @@ class AuthService {
     }
   }
 
-  // ...existing code...
-
+  // Logout user
   async logout() {
     try {
       await api.post('/auth/logout');
@@ -72,8 +95,7 @@ class AuthService {
     }
   }
 
-  // ...existing code...
-
+  // Refresh authentication token
   async refreshToken() {
     try {
       const refreshToken = localStorage.getItem(this.refreshTokenKey);
@@ -101,6 +123,16 @@ class AuthService {
   // Helper method to check if user is authenticated
   isAuthenticated() {
     return !!localStorage.getItem(this.tokenKey);
+  }
+
+  // Get stored token
+  getToken() {
+    return localStorage.getItem(this.tokenKey);
+  }
+
+  // Get stored refresh token
+  getRefreshToken() {
+    return localStorage.getItem(this.refreshTokenKey);
   }
 }
 
