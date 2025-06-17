@@ -3,7 +3,8 @@ const mongoose = require('mongoose');
 const messageSchema = new mongoose.Schema({
   content: {
     type: String,
-    required: true
+    required: true,
+    maxlength: 5000
   },
   sender: {
     type: String,
@@ -17,7 +18,20 @@ const messageSchema = new mongoose.Schema({
   stockContext: {
     symbol: String,
     price: Number,
-    analysis: String
+    change: Number,
+    changePercent: Number,
+    volume: Number,
+    analysis: String,
+    recommendation: String,
+    portfolioAllocation: Number
+  },
+  metadata: {
+    processingTime: Number,
+    modelUsed: {
+      type: String,
+      default: 'gemini-1.5-flash'
+    },
+    tokenCount: Number
   }
 });
 
@@ -34,7 +48,8 @@ const chatSessionSchema = new mongoose.Schema({
   },
   title: {
     type: String,
-    default: 'New Chat Session'
+    default: 'New Analysis Session',
+    maxlength: 100
   },
   messages: [messageSchema],
   isActive: {
@@ -44,9 +59,21 @@ const chatSessionSchema = new mongoose.Schema({
   lastActivity: {
     type: Date,
     default: Date.now
+  },
+  tags: [{
+    type: String,
+    maxlength: 50
+  }],
+  summary: {
+    type: String,
+    maxlength: 500
   }
 }, {
   timestamps: true
 });
+
+// Indexes for better performance
+chatSessionSchema.index({ userId: 1, lastActivity: -1 });
+chatSessionSchema.index({ userId: 1, isActive: 1 });
 
 module.exports = mongoose.model('ChatSession', chatSessionSchema);
