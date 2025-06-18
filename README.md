@@ -342,8 +342,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Vikram Singh**
 
-- GitHub: [@your-github-username](https://github.com/your-github-username)
-- Email: your.email@example.com
+- GitHub: [@vikramgurjar2](https://github.com/vikramgurjar2)
+
 
 ## 🙏 Acknowledgments
 
@@ -362,8 +362,6 @@ If you have any questions or need help setting up the project, please:
 
 1. Check the [Issues](https://github.com/your-username/stock-analyst-chatgpt/issues) page
 2. Create a new issue if your problem isn't already addressed
-3. Reach out via email for urgent matters
 
 ---
 
-*Built with ❤️ for the financial technology community*
