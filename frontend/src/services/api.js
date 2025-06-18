@@ -1,14 +1,16 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5002/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 10000,////this is new change i have done
   headers: {
     'Content-Type': 'application/json',
   },
 });
+////new changes 
+
+
 
 // Request interceptor for API calls
 api.interceptors.request.use(
@@ -39,11 +41,14 @@ api.interceptors.response.use(
         const refreshToken = localStorage.getItem('refreshToken');
         if (refreshToken) {
           const response = await api.post('/auth/refresh-token', { refreshToken });
-          const { token } = response.data;
-          
-          localStorage.setItem('token', token);
+         const { token, refreshToken: newRefreshToken } = response.data;
+         localStorage.setItem('token', token);
+         if (newRefreshToken) {
+         localStorage.setItem('refreshToken', newRefreshToken);
+              }
           originalRequest.headers.Authorization = `Bearer ${token}`;
-          
+
+                    
           return api(originalRequest);
         }
       } catch (refreshError) {
@@ -75,7 +80,7 @@ export const authAPI = {
       throw err;
     }
   },
-  
+    
   register: async (userData) => {
     try {
       const response = await api.post('/auth/register', userData);
@@ -86,7 +91,7 @@ export const authAPI = {
       throw err;
     }
   },
-  
+    
   logout: async () => {
     try {
       const response = await api.post('/auth/logout');

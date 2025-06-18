@@ -1,6 +1,6 @@
 const express = require('express');
 const { body } = require('express-validator');
-const { register, login, getCurrentUser, logout } = require('../controllers/authController');
+const { register, login, getCurrentUser, logout, refreshToken } = require('../controllers/authController');
 const { auth } = require('../middleware/auth');
 
 const router = express.Router();
@@ -42,5 +42,7 @@ router.post('/register', registerValidation, register);
 router.post('/login', loginValidation, login);
 router.get('/me', auth, getCurrentUser);
 router.post('/logout', auth, logout);
+// Add this route with your other auth routes
+router.post('/refresh-token', refreshToken);
 
 module.exports = router;

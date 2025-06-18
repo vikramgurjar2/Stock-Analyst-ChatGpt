@@ -54,4 +54,4 @@ router.get('/watchlist', auth, getWatchlist);
 router.post('/watchlist', auth, addWatchlistValidation, handleValidationErrors, addToWatchlist);
 router.delete('/watchlist/:symbol', auth, symbolValidation, handleValidationErrors, removeFromWatchlist);
 
-module.exports = router;
+module.exports = router;//this is what i want to export

@@ -2,8 +2,8 @@ import api from './api';
 
 class AuthService {
   constructor() {
-    this.tokenKey = 'auth_token';
-    this.refreshTokenKey = 'refresh_token';
+    this.tokenKey = 'token';
+    this.refreshTokenKey = 'refreshToken';
   }
 
   // Token management methods

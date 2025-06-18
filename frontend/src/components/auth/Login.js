@@ -72,7 +72,7 @@ const Login = () => {
       
       if (response.success) {
         // Update auth context with user data
-        await login(response.data.user, response.data.token);
+        await login(response.data.user, response.data.data.token);
         
         // Navigate to intended destination
         navigate(from, { replace: true });

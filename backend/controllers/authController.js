@@ -9,6 +9,63 @@ const generateToken = (userId) => {
   });
 };
 
+// Add this function to your existing authController
+
+// Refresh Token
+const refreshToken = async (req, res) => {
+  try {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      return res.status(400).json({
+        success: false,
+        message: 'Refresh token is required'
+      });
+    }
+
+    // Verify the refresh token
+    let decoded;
+    try {
+      decoded = jwt.verify(refreshToken, process.env.JWT_SECRET);
+    } catch (error) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid or expired refresh token'
+      });
+    }
+
+    // Find the user
+    const user = await User.findById(decoded.userId);
+    if (!user || !user.isActive) {
+      return res.status(401).json({
+        success: false,
+        message: 'User not found or inactive'
+      });
+    }
+
+    // Generate new access token
+    const newToken = generateToken(user._id);
+
+    res.json({
+      success: true,
+      message: 'Token refreshed successfully',
+      data: {
+        token: newToken,
+        // Optionally generate new refresh token
+        refreshToken: refreshToken // Keep same refresh token, or generate new one
+      }
+    });
+
+  } catch (error) {
+    console.error('Refresh token error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Token refresh failed',
+      error: error.message
+    });
+  }
+};
+
 // Register User
 const register = async (req, res) => {
   try {
@@ -165,5 +222,6 @@ module.exports = {
   register,
   login,
   getCurrentUser,
-  logout
+  logout,
+  refreshToken
 };

@@ -20,14 +20,21 @@ const DashboardPage = () => {
     setSearchQuery
   } = useStockData();
 
-  const {
+    const {
     chatMessages,
     currentMessage,
     setCurrentMessage,
     handleSendMessage,
-    handleKeyPress
+    handleKeyPress,
+    loading,
+    error,
+    clearError,
+    getStockAnalysis,
+    clearChat,
+    retryLastMessage,
+    currentSessionId
   } = useChat(selectedStock);
-
+  
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
@@ -37,14 +44,20 @@ const DashboardPage = () => {
           portfolioData={portfolioData} 
         />;
       case 'chat':
-        return <ChatInterface 
-          selectedStock={selectedStock}
-          chatMessages={chatMessages}
-          currentMessage={currentMessage}
-          setCurrentMessage={setCurrentMessage}
-          handleSendMessage={handleSendMessage}
-          handleKeyPress={handleKeyPress}
-        />;
+        return <ChatInterface
+        selectedStock={selectedStock}
+        chatMessages={chatMessages}
+        currentMessage={currentMessage}
+        setCurrentMessage={setCurrentMessage}
+        handleSendMessage={handleSendMessage}
+        handleKeyPress={handleKeyPress}
+        loading={loading}
+        error={error}
+        clearError={clearError}
+        getStockAnalysis={getStockAnalysis}
+        clearChat={clearChat}
+        retryLastMessage={retryLastMessage}
+      />;
       case 'reports':
         return <ReportsSection />;
       case 'investors':

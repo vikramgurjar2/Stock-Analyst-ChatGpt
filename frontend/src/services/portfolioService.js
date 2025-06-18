@@ -10,6 +10,7 @@ export const portfolioService = {
       throw new Error(`Failed to fetch portfolio: ${error.message}`);
     }
   },
+  
 
   // Add stock to portfolio
   addStock: async (stockData) => {

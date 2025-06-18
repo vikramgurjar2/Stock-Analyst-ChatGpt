@@ -1,11 +1,9 @@
-// src/services/stockService.js - Stock-related API calls
 import api from './api';
 
 export const stockService = {
-  // Get stock data for a specific symbol
   getStockData: async (symbol, timeframe = '1d') => {
     try {
-      const response = await api.get(`/quote/:${symbol}`, {
+      const response = await api.get(`/quote/${symbol}`, {
         params: { timeframe }
       });
       return response.data;
@@ -14,19 +12,15 @@ export const stockService = {
     }
   },
 
-  // Get multiple stocks data
   getMultipleStocks: async (symbols) => {
     try {
-      const response = await api.post('/stocks/multiple', {
-        symbols: symbols
-      });
+      const response = await api.post('/stocks/multiple', { symbols });
       return response.data;
     } catch (error) {
       throw new Error(`Failed to fetch multiple stocks: ${error.message}`);
     }
   },
 
-  // Get stock historical data
   getHistoricalData: async (symbol, period = '1y') => {
     try {
       const response = await api.get(`/stocks/${symbol}/history`, {
@@ -38,7 +32,6 @@ export const stockService = {
     }
   },
 
-  // Search stocks
   searchStocks: async (query) => {
     try {
       const response = await api.get('/stocks/search', {
@@ -47,6 +40,22 @@ export const stockService = {
       return response.data;
     } catch (error) {
       throw new Error(`Failed to search stocks: ${error.message}`);
+    }
+  },
+
+  // Add these if needed elsewhere in your codebase
+ getStockQuote: async (symbol) => {
+  const response = await api.get(`/quote/${symbol}`);
+  return response.data;
+}
+,
+
+  getWatchlist: async () => {
+    try {
+      const response = await api.get('/watchlist');
+      return response.data;
+    } catch (error) {
+      throw new Error(`Failed to fetch watchlist: ${error.message}`);
     }
   }
 };
