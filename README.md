@@ -1,3 +1,8 @@
+![dashboard_AI_CHAT](https://github.com/user-attachments/assets/ba26014b-5894-45b7-ad8a-d9594bdec9b6)
+![dashboard1](https://github.com/user-attachments/assets/b4afd494-0711-41cd-bcc8-a0551ee06265)
+![dashboard2](https://github.com/user-attachments/assets/40b619cd-bf57-4cf2-9745-7624579f49ba)
+![dashboard_report](https://github.com/user-attachments/assets/98ad8a29-7371-4481-bd86-627e6a6ee2ee)
+![dashboard_invest](https://github.com/user-attachments/assets/dfab46a5-e1fc-40b5-97bd-05e1d1acdeda)
 # Stock Analyst ChatGPT System
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
