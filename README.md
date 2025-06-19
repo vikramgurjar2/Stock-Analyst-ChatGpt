@@ -136,12 +136,12 @@ This will start:
 
 **Start Backend Only:**
 ```bash
-npm run server
+npm run dev
 ```
 
 **Start Frontend Only:**
 ```bash
-npm run client
+npm start
 ```
 
 ### Production Mode
