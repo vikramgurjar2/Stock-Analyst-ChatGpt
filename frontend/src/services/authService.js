@@ -77,7 +77,7 @@ class AuthService {
   // Get current user profile with auto-refresh token
   async getProfile() {
     try {
-      const response = await api.get('/auth/profile');
+      const response = await api.get('/auth/me');
       return {
         success: true,
         data: response.data
@@ -136,4 +136,5 @@ class AuthService {
   }
 }
 
+//export const authService = new AuthService();
 export const authService = new AuthService();
