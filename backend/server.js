@@ -9,6 +9,8 @@ const { createServer } = require('http'); // Node.js HTTP server
 const { Server } = require('socket.io'); // Real-time communication
 require('dotenv').config(); // Loads .env variables
 
+
+
 // 2. Import route handlers and socket logic
 // These files define how different API endpoints and sockets behave.
 const authRoutes = require('./routes/auth'); // Authentication endpoints
@@ -41,6 +43,7 @@ const allowedOrigins = [
   "http://localhost:3000",
   "https://stock-analyst-chat-gpt.vercel.app"
 ];
+app.set('trust proxy', 1); // trust first proxy
 
 app.use(cors({
   origin: (origin, callback) => {
