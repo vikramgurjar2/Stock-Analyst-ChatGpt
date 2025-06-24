@@ -58,6 +58,10 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/stock-ana
 
 // 8. Mount API routes
 // Registers your API endpoints under /api/...
+app.get('/', (req, res) => {
+  res.send('Backend is running!');
+});
+
 app.use('/api/auth', authRoutes);    // Authentication (register, login, etc.)
 app.use('/api/stocks', stockRoutes); // Stock data endpoints
 app.use('/api/ai', aiRoutes);        // AI-related endpoints
