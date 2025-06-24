@@ -3,14 +3,22 @@
 ![dashboard2](https://github.com/user-attachments/assets/40b619cd-bf57-4cf2-9745-7624579f49ba)
 ![dashboard_report](https://github.com/user-attachments/assets/98ad8a29-7371-4481-bd86-627e6a6ee2ee)
 ![dashboard_invest](https://github.com/user-attachments/assets/dfab46a5-e1fc-40b5-97bd-05e1d1acdeda)
+
 # Stock Analyst ChatGPT System
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js](https://img.shields.io/badge/Node.js-18.x-green.svg)](https://nodejs.org/)
 [![React](https://img.shields.io/badge/React-18.2.0-blue.svg)](https://reactjs.org/)
 [![MongoDB](https://img.shields.io/badge/MongoDB-7.0-green.svg)](https://www.mongodb.com/)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Available-brightgreen.svg)](https://stock-analyst-chat-gpt.vercel.app/)
 
 An AI-powered stock analysis platform that combines conversational AI capabilities with advanced technical analysis tools. Built with the MERN stack and integrated with Gemini AI for intelligent stock analysis and portfolio optimization.
+
+## 🌐 Live Demo
+
+**🔗 [Try the Live Application](https://stock-analyst-chat-gpt.vercel.app/)**
+
+Experience the full functionality of the Stock Analyst ChatGPT System with our live deployment. Test the AI-powered stock analysis, chat interface, and portfolio optimization features in real-time.
 
 ## 🚀 Features
 
@@ -349,7 +357,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - GitHub: [@vikramgurjar2](https://github.com/vikramgurjar2)
 
-
 ## 🙏 Acknowledgments
 
 - OpenAI for conversational AI capabilities
@@ -369,4 +376,3 @@ If you have any questions or need help setting up the project, please:
 2. Create a new issue if your problem isn't already addressed
 
 ---
-
