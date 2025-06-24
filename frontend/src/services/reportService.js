@@ -4,7 +4,7 @@ export const reportsService = {
   // Generate report
   generateReport: async (reportType, parameters) => {
     try {
-      const response = await api.post('/reports/generate', {
+      const response = await api.post('/api/reports/generate', {
         type: reportType,
         parameters
       });
@@ -17,7 +17,7 @@ export const reportsService = {
   // Get report list
   getReports: async () => {
     try {
-      const response = await api.get('/reports');
+      const response = await api.get('/api/reports');
       return response.data;
     } catch (error) {
       throw new Error(`Failed to fetch reports: ${error.message}`);
@@ -27,7 +27,7 @@ export const reportsService = {
   // Download report
   downloadReport: async (reportId) => {
     try {
-      const response = await api.get(`/reports/${reportId}/download`, {
+      const response = await api.get(`/api/reports/${reportId}/download`, {
         responseType: 'blob'
       });
       return response.data;
@@ -39,7 +39,7 @@ export const reportsService = {
   // Delete report
   deleteReport: async (reportId) => {
     try {
-      const response = await api.delete(`/reports/${reportId}`);
+      const response = await api.delete(`/api/reports/${reportId}`);
       return response.data;
     } catch (error) {
       throw new Error(`Failed to delete report: ${error.message}`);

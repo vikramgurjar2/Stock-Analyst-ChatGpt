@@ -1,6 +1,6 @@
 // src/services/chatService.js
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://stock-analyst-chatgpt-backend.onrender.com';
 
 // Helper function to get auth token (consistent with AuthService)
 const getAuthToken = () => {
@@ -24,7 +24,7 @@ const refreshAuthToken = async () => {
 
   console.log('Attempting to refresh token...');
 
-  const response = await fetch(`${API_BASE_URL}/auth/refresh-token`, {
+  const response = await fetch(`${API_BASE_URL}/api/auth/refresh-token`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -93,7 +93,7 @@ const apiCall = async (endpoint, options = {}) => {
         console.error('Token refresh failed:', refreshError);
         // Clear tokens and redirect to login (consistent with AuthService pattern)
         clearTokens();
-        window.location.href = '/login';
+        window.location.href = '/api/login';
         throw new Error('Authentication failed');
       }
     }
@@ -126,7 +126,7 @@ export const chatService = {
     //   payload.stockSymbol = stockSymbol;////here made a change vikram 
     // }
 
-    return await apiCall('/ai/chat', {
+    return await apiCall('/api/ai/chat', {
       method: 'POST',
       body: JSON.stringify(payload)
     });
@@ -138,14 +138,14 @@ export const chatService = {
       throw new Error('Stock symbol is required');
     }
     
-    return await apiCall(`/ai/analysis/${symbol.toUpperCase()}`, {
+    return await apiCall(`/api/ai/analysis/${symbol.toUpperCase()}`, {
       method: 'GET'
     });
   },
 
   // Get chat sessions
   getChatSessions: async () => {
-    return await apiCall('/ai/sessions', {
+    return await apiCall('/api/ai/sessions', {
       method: 'GET'
     });
   },
@@ -156,7 +156,7 @@ export const chatService = {
       throw new Error('Session ID is required');
     }
     
-    return await apiCall(`/ai/sessions/${sessionId}`, {
+    return await apiCall(`/api/ai/sessions/${sessionId}`, {
       method: 'GET'
     });
   },
@@ -167,7 +167,7 @@ export const chatService = {
       throw new Error('Session ID is required');
     }
     
-    return await apiCall(`/ai/sessions/${sessionId}`, {
+    return await apiCall(`/api/ai/sessions/${sessionId}`, {
       method: 'DELETE'
     });
   }

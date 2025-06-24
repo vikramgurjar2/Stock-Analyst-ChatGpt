@@ -22,7 +22,7 @@ class AuthService {
   // Register user
   async register(userData) {
     try {
-      const response = await api.post('/auth/register', userData);
+      const response = await api.post('/api/auth/register', userData);
       const { token, refreshToken } = response.data;
       
       // Automatically set tokens after successful registration
@@ -46,7 +46,7 @@ class AuthService {
   // Login user
   async login(credentials) {
     try {
-      const response = await api.post('/auth/login', credentials);
+      const response = await api.post('/api/auth/login', credentials);  //  "/auth/login"
       const { token, refreshToken } = response.data;
       this.setTokens(token, refreshToken);
       return {
@@ -64,7 +64,7 @@ class AuthService {
   // Logout user
   async logout() {
     try {
-      await api.post('/auth/logout');
+      await api.post('/api/auth/logout');
       this.clearTokens();
       return { success: true };
     } catch (error) {
@@ -77,7 +77,7 @@ class AuthService {
   // Get current user profile with auto-refresh token
   async getProfile() {
     try {
-      const response = await api.get('/auth/me');
+      const response = await api.get('/api/auth/me');
       return {
         success: true,
         data: response.data
@@ -103,7 +103,7 @@ class AuthService {
         throw new Error('No refresh token available');
       }
 
-      const response = await api.post('/auth/refresh-token', { refreshToken });
+      const response = await api.post('/api/auth/refresh-token', { refreshToken });
       const { token: newToken } = response.data;
       this.setTokens(newToken);
       

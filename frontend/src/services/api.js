@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://stock-analyst-chatgpt-backend.onrender.com/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -55,7 +55,7 @@ api.interceptors.response.use(
         // Handle refresh token failure
         localStorage.removeItem('token');
         localStorage.removeItem('refreshToken');
-        window.location.href = '/login';
+        window.location.href = '/api/login';
       }
     }
 
@@ -66,7 +66,7 @@ api.interceptors.response.use(
 export const authAPI = {
   login: async (email, password) => {
     try {
-      const response = await api.post('/auth/login', { email, password });
+      const response = await api.post('api/auth/login', { email, password });
       if (response.data.token) {
         localStorage.setItem('token', response.data.token);
         if (response.data.refreshToken) {
@@ -83,7 +83,7 @@ export const authAPI = {
     
   register: async (userData) => {
     try {
-      const response = await api.post('/auth/register', userData);
+      const response = await api.post('/api/auth/register', userData);
       return response.data;
     } catch (error) {
       const err = new Error(error.response?.data?.message || 'Registration failed');
@@ -94,7 +94,7 @@ export const authAPI = {
     
   logout: async () => {
     try {
-      const response = await api.post('/auth/logout');
+      const response = await api.post('/api/auth/logout');
       localStorage.removeItem('token');
       localStorage.removeItem('refreshToken');
       return response.data;

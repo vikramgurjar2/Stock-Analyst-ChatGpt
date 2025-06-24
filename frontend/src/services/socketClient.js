@@ -16,7 +16,7 @@ class SocketClient {
       return this.socket;
     }
 
-    const serverUrl = process.env.REACT_APP_API_URL || 'http://localhost:5001';
+    const serverUrl = process.env.REACT_APP_API_URL || 'https://stock-analyst-chatgpt-backend.onrender.com';
     
     this.socket = io(serverUrl, {
       auth: { token },

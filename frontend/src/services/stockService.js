@@ -3,7 +3,7 @@ import api from './api';
 export const stockService = {
   getStockData: async (symbol, timeframe = '1d') => {
     try {
-      const response = await api.get(`/quote/${symbol}`, {
+      const response = await api.get(`/api/quote/${symbol}`, {
         params: { timeframe }
       });
       return response.data;
@@ -14,7 +14,7 @@ export const stockService = {
 
   getMultipleStocks: async (symbols) => {
     try {
-      const response = await api.post('/stocks/multiple', { symbols });
+      const response = await api.post('/api/stocks/multiple', { symbols });
       return response.data;
     } catch (error) {
       throw new Error(`Failed to fetch multiple stocks: ${error.message}`);
@@ -23,7 +23,7 @@ export const stockService = {
 
   getHistoricalData: async (symbol, period = '1y') => {
     try {
-      const response = await api.get(`/stocks/history/${symbol}`, {
+      const response = await api.get(`/api/stocks/history/${symbol}`, {
         params: { period }
       });
       return response.data;
@@ -34,7 +34,7 @@ export const stockService = {
 
   searchStocks: async (query) => {
     try {
-      const response = await api.get('/stocks/search', {
+      const response = await api.get('/api/stocks/search', {
         params: { q: query }
       });
       return response.data;
@@ -46,7 +46,7 @@ export const stockService = {
   // Fixed: Added try/catch for consistency
   getStockQuote: async (symbol) => {
     try {
-      const response = await api.get(`/stocks/quote/${symbol}`);
+      const response = await api.get(`/api/stocks/quote/${symbol}`);
       return response.data;
     } catch (error) {
       throw new Error(`Failed to fetch stock quote: ${error.message}`);
@@ -55,7 +55,7 @@ export const stockService = {
 
   getWatchlist: async () => {
     try {
-      const response = await api.get('/stocks/watchlist');
+      const response = await api.get('/api/stocks/watchlist');
       return response.data;
     } catch (error) {
       throw new Error(`Failed to fetch watchlist: ${error.message}`);
@@ -65,7 +65,7 @@ export const stockService = {
   // Watchlist Management
   addToWatchlist: async (symbol) => {
     try {
-      const response = await api.post('/watchlist', { 
+      const response = await api.post('/api/watchlist', { 
         symbol: symbol.toUpperCase() 
       });
       return response.data;
@@ -76,7 +76,7 @@ export const stockService = {
 
   removeFromWatchlist: async (symbol) => {
     try {
-      const response = await api.delete(`/watchlist/${symbol.toUpperCase()}`);
+      const response = await api.delete(`/api/watchlist/${symbol.toUpperCase()}`);
       return response.data;
     } catch (error) {
       throw new Error(`Failed to remove from watchlist: ${error.message}`);
@@ -85,7 +85,7 @@ export const stockService = {
 
   refreshWatchlist: async () => {
     try {
-      const response = await api.post('/watchlist/refresh');
+      const response = await api.post('/api/watchlist/refresh');
       return response.data;
     } catch (error) {
       throw new Error(`Failed to refresh watchlist: ${error.message}`);
@@ -95,7 +95,7 @@ export const stockService = {
   // Market Data
   getTrendingStocks: async () => {
     try {
-      const response = await api.get('/stocks/trending');
+      const response = await api.get('/api/stocks/trending');
       return response.data;
     } catch (error) {
       throw new Error(`Failed to fetch trending stocks: ${error.message}`);
@@ -104,7 +104,7 @@ export const stockService = {
 
   getMarketMovers: async (type = 'gainers') => {
     try {
-      const response = await api.get('/stocks/movers', {
+      const response = await api.get('/api/stocks/movers', {
         params: { type }
       });
       return response.data;
@@ -115,7 +115,7 @@ export const stockService = {
 
   getMarketStatus: async () => {
     try {
-      const response = await api.get('/stocks/market-status');
+      const response = await api.get('/api/stocks/market-status');
       return response.data;
     } catch (error) {
       throw new Error(`Failed to fetch market status: ${error.message}`);
@@ -125,7 +125,7 @@ export const stockService = {
   // Portfolio Operations
   getPortfolio: async () => {
     try {
-      const response = await api.get('/portfolio');
+      const response = await api.get('/api/portfolio');
       return response.data;
     } catch (error) {
       throw new Error(`Failed to fetch portfolio: ${error.message}`);
