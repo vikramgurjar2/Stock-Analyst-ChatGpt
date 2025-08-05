@@ -3,7 +3,7 @@ const yahooFinance = require("yahoo-finance2").default;
 const { validationResult } = require("express-validator");
 
 // Rate limiting configuration (Yahoo Finance is more lenient)
-const RATE_LIMIT_DELAY = 100; // 1 second between API calls
+const RATE_LIMIT_DELAY = 1000; // 1 second between API calls
 let lastApiCall = 0;
 
 // Helper function to add delay between API calls
