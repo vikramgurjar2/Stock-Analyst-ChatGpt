@@ -15,10 +15,10 @@ const rateLimit = require('express-rate-limit');
 
 const router = express.Router();
 
-// Rate limiting middleware
+// Rate limiting middleware - adjusted for Yahoo Finance limits
 const stockApiRateLimit = rateLimit({
   windowMs: 60 * 1000, // 1 minute
-  max: 10, // Limit each IP to 10 requests per windowMs
+  max: 15, // Increased slightly since Yahoo Finance is more lenient
   message: {
     success: false,
     message: 'Too many requests from this IP, please try again later.',
@@ -26,6 +26,19 @@ const stockApiRateLimit = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
+  // Skip rate limiting for cached watchlist requests
+  skip: (req) => req.path === '/watchlist' && req.method === 'GET'
+});
+
+// Separate rate limit for search (more restrictive)
+const searchRateLimit = rateLimit({
+  windowMs: 60 * 1000,
+  max: 5,
+  message: {
+    success: false,
+    message: 'Too many search requests, please try again later.',
+    retryAfter: 60
+  }
 });
 
 // Validation error handling middleware
@@ -35,59 +48,102 @@ const handleValidationErrors = (req, res, next) => {
     return res.status(400).json({
       success: false,
       message: 'Validation failed',
-      errors: errors.array()
+      errors: errors.array().map(err => ({
+        field: err.path,
+        message: err.msg,
+        value: err.value
+      }))
     });
   }
   next();
 };
 
-// Validation middleware
+// Enhanced validation middleware
 const symbolValidation = [
   param('symbol')
     .isLength({ min: 1, max: 10 })
     .withMessage('Stock symbol must be between 1 and 10 characters')
-    .matches(/^[A-Za-z0-9\.\-]+$/)
+    .matches(/^[A-Za-z0-9\.\-^]+$/)
     .withMessage('Stock symbol contains invalid characters')
+    .customSanitizer(value => value.toUpperCase().trim())
 ];
 
 const searchValidation = [
   query('query')
     .isLength({ min: 2, max: 50 })
     .withMessage('Search query must be between 2 and 50 characters')
-    .matches(/^[A-Za-z0-9\s\.\-]+$/)
+    .matches(/^[A-Za-z0-9\s\.\-&]+$/)
     .withMessage('Search query contains invalid characters')
+    .customSanitizer(value => value.trim())
 ];
 
 const addWatchlistValidation = [
   body('symbol')
     .isLength({ min: 1, max: 10 })
     .withMessage('Stock symbol must be between 1 and 10 characters')
-    .matches(/^[A-Za-z0-9\.\-]+$/)
+    .matches(/^[A-Za-z0-9\.\-^]+$/)
     .withMessage('Stock symbol contains invalid characters')
+    .customSanitizer(value => value.toUpperCase().trim())
 ];
 
 const multipleQuotesValidation = [
   body('symbols')
-    .isArray({ min: 1, max: 10 })
-    .withMessage('Symbols must be an array with 1-10 elements'),
+    .isArray({ min: 1, max: 15 }) // Increased limit
+    .withMessage('Symbols must be an array with 1-15 elements'),
   body('symbols.*')
     .isLength({ min: 1, max: 10 })
     .withMessage('Each symbol must be between 1 and 10 characters')
-    .matches(/^[A-Za-z0-9\.\-]+$/)
+    .matches(/^[A-Za-z0-9\.\-^]+$/)
     .withMessage('Symbol contains invalid characters')
+    .customSanitizer(value => value.toUpperCase().trim())
 ];
 
+// Fixed history validation - match controller periods
 const historyValidation = [
   param('symbol')
     .isLength({ min: 1, max: 10 })
     .withMessage('Stock symbol must be between 1 and 10 characters')
-    .matches(/^[A-Za-z0-9\.\-]+$/)
-    .withMessage('Stock symbol contains invalid characters'),
+    .matches(/^[A-Za-z0-9\.\-^]+$/)
+    .withMessage('Stock symbol contains invalid characters')
+    .customSanitizer(value => value.toUpperCase().trim()),
   query('period')
     .optional()
-    .isIn(['1D', '1W', '1M', '3M', '6M', '1Y'])
-    .withMessage('Period must be one of: 1D, 1W, 1M, 3M, 6M, 1Y')
+    .isIn(['1d', '5d', '1mo', '3mo', '6mo', '1y', '2y', '5y', '10y'])
+    .withMessage('Period must be one of: 1d, 5d, 1mo, 3mo, 6mo, 1y, 2y, 5y, 10y'),
+  query('interval')
+    .optional()
+    .isIn(['1m', '2m', '5m', '15m', '30m', '60m', '90m', '1h', '1d', '5d', '1wk', '1mo', '3mo'])
+    .withMessage('Invalid interval specified')
 ];
+
+// Enhanced error handling middleware
+const errorHandler = (err, req, res, next) => {
+  console.error('Stock API Error:', err);
+  
+  // Yahoo Finance specific errors
+  if (err.message.includes('Not Found') || err.message.includes('404')) {
+    return res.status(404).json({
+      success: false,
+      message: 'Stock symbol not found',
+      code: 'SYMBOL_NOT_FOUND'
+    });
+  }
+  
+  if (err.message.includes('rate limit') || err.message.includes('429')) {
+    return res.status(429).json({
+      success: false,
+      message: 'Rate limit exceeded, please try again later',
+      code: 'RATE_LIMIT_EXCEEDED',
+      retryAfter: 60
+    });
+  }
+  
+  res.status(500).json({
+    success: false,
+    message: 'Internal server error',
+    code: 'INTERNAL_ERROR'
+  });
+};
 
 // Stock quote routes
 router.get('/quote/:symbol', 
@@ -107,16 +163,16 @@ router.post('/quotes',
   getMultipleQuotes
 );
 
-// Search stocks route
+// Search stocks route - with stricter rate limiting
 router.get('/search', 
   auth, 
-  stockApiRateLimit,
+  searchRateLimit,
   searchValidation, 
   handleValidationErrors, 
   searchStocks
 );
 
-// Watchlist routes
+// Watchlist routes - no rate limit for basic get
 router.get('/watchlist', 
   auth, 
   getWatchlist
@@ -147,14 +203,15 @@ router.delete('/watchlist/:symbol',
 // Stock history route
 router.get('/history/:symbol', 
   auth, 
+  stockApiRateLimit,
   historyValidation, 
   handleValidationErrors, 
   getStockHistory
 );
 
-// Market data routes (you might need these for your frontend)
-router.get('/trending', auth, (req, res) => {
-  // Mock trending stocks data
+// Enhanced market data routes
+router.get('/trending', auth, stockApiRateLimit, (req, res) => {
+  // You might want to fetch real trending data from Yahoo Finance
   const trendingStocks = [
     { symbol: 'AAPL', name: 'Apple Inc.', changePercent: 2.5 },
     { symbol: 'GOOGL', name: 'Alphabet Inc.', changePercent: 1.8 },
@@ -165,71 +222,134 @@ router.get('/trending', auth, (req, res) => {
   
   res.json({
     success: true,
-    data: trendingStocks
+    data: trendingStocks,
+    timestamp: new Date().toISOString()
   });
 });
 
-router.get('/movers', auth, (req, res) => {
-  const { type = 'gainers' } = req.query; // gainers, losers, active
+router.get('/movers', auth, stockApiRateLimit, (req, res) => {
+  const { type = 'gainers' } = req.query;
   
-  // Mock market movers data
+  // Validate type parameter
+  if (!['gainers', 'losers', 'active'].includes(type)) {
+    return res.status(400).json({
+      success: false,
+      message: 'Type must be one of: gainers, losers, active'
+    });
+  }
+  
   const movers = {
     gainers: [
-      { symbol: 'NVDA', name: 'NVIDIA Corporation', changePercent: 8.5, price: 485.23 },
-      { symbol: 'AMD', name: 'Advanced Micro Devices', changePercent: 6.2, price: 123.45 },
-      { symbol: 'TSLA', name: 'Tesla, Inc.', changePercent: 5.8, price: 185.67 }
+      { symbol: 'NVDA', name: 'NVIDIA Corporation', changePercent: 8.5, price: 485.23, volume: 45000000 },
+      { symbol: 'AMD', name: 'Advanced Micro Devices', changePercent: 6.2, price: 123.45, volume: 32000000 },
+      { symbol: 'TSLA', name: 'Tesla, Inc.', changePercent: 5.8, price: 185.67, volume: 78000000 }
     ],
     losers: [
-      { symbol: 'META', name: 'Meta Platforms, Inc.', changePercent: -4.2, price: 298.34 },
-      { symbol: 'NFLX', name: 'Netflix, Inc.', changePercent: -3.8, price: 423.12 },
-      { symbol: 'PYPL', name: 'PayPal Holdings, Inc.', changePercent: -2.9, price: 67.89 }
+      { symbol: 'META', name: 'Meta Platforms, Inc.', changePercent: -4.2, price: 298.34, volume: 23000000 },
+      { symbol: 'NFLX', name: 'Netflix, Inc.', changePercent: -3.8, price: 423.12, volume: 18000000 },
+      { symbol: 'PYPL', name: 'PayPal Holdings, Inc.', changePercent: -2.9, price: 67.89, volume: 15000000 }
     ],
     active: [
-      { symbol: 'AAPL', name: 'Apple Inc.', volume: 89000000, price: 178.23 },
-      { symbol: 'TSLA', name: 'Tesla, Inc.', volume: 156000000, price: 185.67 },
-      { symbol: 'SPY', name: 'SPDR S&P 500 ETF Trust', volume: 67000000, price: 445.23 }
+      { symbol: 'AAPL', name: 'Apple Inc.', volume: 89000000, price: 178.23, changePercent: 1.2 },
+      { symbol: 'TSLA', name: 'Tesla, Inc.', volume: 156000000, price: 185.67, changePercent: 5.8 },
+      { symbol: 'SPY', name: 'SPDR S&P 500 ETF Trust', volume: 67000000, price: 445.23, changePercent: 0.8 }
     ]
   };
   
   res.json({
     success: true,
-    data: movers[type] || movers.gainers
+    data: movers[type],
+    type,
+    timestamp: new Date().toISOString()
   });
 });
 
-// Portfolio routes (if needed for your frontend)
+// Portfolio routes placeholder
 router.get('/portfolio', auth, (req, res) => {
-  // Mock portfolio data - you might want to create a separate portfolio model
   res.json({
     success: true,
     data: {
-      totalValue: 50000.00,
-      totalGainLoss: 2500.50,
-      totalGainLossPercent: 5.26,
-      positions: []
-    }
+      totalValue: 0.00,
+      totalGainLoss: 0.00,
+      totalGainLossPercent: 0.00,
+      positions: [],
+      lastUpdated: new Date().toISOString()
+    },
+    message: 'Portfolio feature coming soon'
   });
 });
 
-// Market status route
+// Enhanced market status route
 router.get('/market-status', auth, (req, res) => {
   const now = new Date();
-  const currentHour = now.getHours();
-  const currentDay = now.getDay(); // 0 = Sunday, 6 = Saturday
+  const estTime = new Date(now.toLocaleString("en-US", {timeZone: "America/New_York"}));
+  const currentHour = estTime.getHours();
+  const currentMinute = estTime.getMinutes();
+  const currentDay = estTime.getDay(); // 0 = Sunday, 6 = Saturday
   
-  // Simple market hours check (9:30 AM - 4:00 PM EST, Monday-Friday)
-  const isMarketOpen = currentDay >= 1 && currentDay <= 5 && 
-                      currentHour >= 9 && currentHour < 16;
+  // Market hours: 9:30 AM - 4:00 PM EST, Monday-Friday
+  const isWeekday = currentDay >= 1 && currentDay <= 5;
+  const isAfterOpen = currentHour > 9 || (currentHour === 9 && currentMinute >= 30);
+  const isBeforeClose = currentHour < 16;
+  const isMarketOpen = isWeekday && isAfterOpen && isBeforeClose;
+  
+  // Pre-market: 4:00 AM - 9:30 AM
+  const isPremarket = isWeekday && currentHour >= 4 && (currentHour < 9 || (currentHour === 9 && currentMinute < 30));
+  
+  // After-hours: 4:00 PM - 8:00 PM
+  const isAfterHours = isWeekday && currentHour >= 16 && currentHour < 20;
+  
+  let status = "CLOSED";
+  if (isMarketOpen) status = "OPEN";
+  else if (isPremarket) status = "PREMARKET";
+  else if (isAfterHours) status = "AFTERHOURS";
   
   res.json({
     success: true,
     data: {
+      status,
       isOpen: isMarketOpen,
-      nextOpen: isMarketOpen ? null : 'Tomorrow 9:30 AM EST',
-      nextClose: isMarketOpen ? 'Today 4:00 PM EST' : null,
-      timezone: 'EST'
+      isPremarket,
+      isAfterHours,
+      currentTime: estTime.toISOString(),
+      timezone: 'America/New_York',
+      nextOpen: isMarketOpen ? null : getNextMarketOpen(now),
+      nextClose: isMarketOpen ? getNextMarketClose(now) : null
     }
   });
 });
+
+// Helper functions for market status
+function getNextMarketOpen(now) {
+  const tomorrow = new Date(now);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  tomorrow.setHours(9, 30, 0, 0);
+  
+  // Skip weekends
+  while (tomorrow.getDay() === 0 || tomorrow.getDay() === 6) {
+    tomorrow.setDate(tomorrow.getDate() + 1);
+  }
+  
+  return tomorrow.toISOString();
+}
+
+function getNextMarketClose(now) {
+  const today = new Date(now);
+  today.setHours(16, 0, 0, 0);
+  return today.toISOString();
+}
+
+// Health check endpoint
+router.get('/health', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Stock API is healthy',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  });
+});
+
+// Apply error handler
+router.use(errorHandler);
 
 module.exports = router;

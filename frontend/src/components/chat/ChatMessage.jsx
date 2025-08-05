@@ -16,6 +16,16 @@ const ChatMessage = ({ message }) => {
     }
   };
 
+  const getChangeColorClasses = (change) => {
+    return change >= 0 ? 'text-green-600' : 'text-red-600';
+  };
+
+  const getSignalClasses = (signalType) => {
+    return signalType === 'BUY' 
+      ? 'bg-green-50 text-green-800' 
+      : 'bg-red-50 text-red-800';
+  };
+
   const renderStockData = (data) => {
     if (!data) return null;
 
@@ -26,18 +36,24 @@ const ChatMessage = ({ message }) => {
       <div className="mt-2 p-3 bg-white rounded border text-sm">
         {/* Basic Stock Info */}
         {stockInfo.symbol && (
-          <div className="mb-3 pb-2 border-b">
-            <h4 className="font-bold text-lg">{stockInfo.symbol}</h4>
-            <div className="flex items-center gap-4 mt-1">
+          <div className="mb-3 pb-2 border-b border-gray-200">
+            <h4 className="font-bold text-lg text-gray-900">{stockInfo.symbol}</h4>
+            <div className="flex items-center gap-4 mt-1 flex-wrap">
               {stockInfo.price && (
-                <div>
+                <div className="text-gray-700">
                   <span className="font-semibold">Price:</span> ${stockInfo.price}
                 </div>
               )}
               {stockInfo.change && (
-                <div className={`flex items-center gap-1 ${stockInfo.change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {stockInfo.change >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
-                  <span>${stockInfo.change.toFixed(2)} ({stockInfo.changePercent?.toFixed(2)}%)</span>
+                <div className={`flex items-center gap-1 ${getChangeColorClasses(stockInfo.change)}`}>
+                  {stockInfo.change >= 0 ? 
+                    <TrendingUp className="h-4 w-4" /> : 
+                    <TrendingDown className="h-4 w-4" />
+                  }
+                  <span>
+                    ${stockInfo.change.toFixed(2)} 
+                    {stockInfo.changePercent && ` (${stockInfo.changePercent.toFixed(2)}%)`}
+                  </span>
                 </div>
               )}
             </div>
@@ -47,14 +63,15 @@ const ChatMessage = ({ message }) => {
         {/* Technical Signals */}
         {stockInfo.technicalSignals && stockInfo.technicalSignals.length > 0 && (
           <div className="mb-3">
-            <h5 className="font-semibold mb-2">Technical Signals:</h5>
+            <h5 className="font-semibold mb-2 text-gray-800">Technical Signals:</h5>
             <div className="space-y-1">
               {stockInfo.technicalSignals.map((signal, index) => (
-                <div key={index} className={`flex items-center gap-2 text-xs p-2 rounded ${
-                  signal.type === 'BUY' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'
-                }`}>
+                <div 
+                  key={index} 
+                  className={`flex items-center gap-2 text-xs p-2 rounded ${getSignalClasses(signal.type)}`}
+                >
                   <span className="font-medium">{signal.type}</span>
-                  <span>({signal.indicator})</span>
+                  <span className="text-gray-600">({signal.indicator})</span>
                   <span className="opacity-75">{signal.reason}</span>
                 </div>
               ))}
@@ -65,26 +82,32 @@ const ChatMessage = ({ message }) => {
         {/* Risk Metrics */}
         {stockInfo.riskMetrics && (
           <div className="mb-3">
-            <h5 className="font-semibold mb-2">Risk Metrics:</h5>
-            <div className="grid grid-cols-2 gap-2 text-xs">
+            <h5 className="font-semibold mb-2 text-gray-800">Risk Metrics:</h5>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
               {stockInfo.riskMetrics.volatility && (
-                <div>
-                  <span className="font-medium">Volatility:</span> {(stockInfo.riskMetrics.volatility * 100).toFixed(2)}%
+                <div className="p-2 bg-gray-50 rounded">
+                  <span className="font-medium text-gray-700">Volatility:</span>{' '}
+                  <span className="text-gray-900">
+                    {(stockInfo.riskMetrics.volatility * 100).toFixed(2)}%
+                  </span>
                 </div>
               )}
               {stockInfo.riskMetrics.rsi && (
-                <div>
-                  <span className="font-medium">RSI:</span> {stockInfo.riskMetrics.rsi}
+                <div className="p-2 bg-gray-50 rounded">
+                  <span className="font-medium text-gray-700">RSI:</span>{' '}
+                  <span className="text-gray-900">{stockInfo.riskMetrics.rsi}</span>
                 </div>
               )}
               {stockInfo.riskMetrics.momentum && (
-                <div>
-                  <span className="font-medium">Momentum:</span> {stockInfo.riskMetrics.momentum.toFixed(2)}%
+                <div className="p-2 bg-gray-50 rounded">
+                  <span className="font-medium text-gray-700">Momentum:</span>{' '}
+                  <span className="text-gray-900">{stockInfo.riskMetrics.momentum.toFixed(2)}%</span>
                 </div>
               )}
               {stockInfo.portfolioAllocation && (
-                <div>
-                  <span className="font-medium">Suggested Allocation:</span> {stockInfo.portfolioAllocation}%
+                <div className="p-2 bg-gray-50 rounded">
+                  <span className="font-medium text-gray-700">Suggested Allocation:</span>{' '}
+                  <span className="text-gray-900">{stockInfo.portfolioAllocation}%</span>
                 </div>
               )}
             </div>
@@ -93,51 +116,59 @@ const ChatMessage = ({ message }) => {
 
         {/* Fallback for other data structures */}
         {!stockInfo.symbol && (
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {data.currentPrice && (
-              <div>
-                <span className="font-semibold">Current Price:</span> ${data.currentPrice}
+              <div className="p-2 bg-blue-50 rounded">
+                <span className="font-semibold text-blue-800">Current Price:</span>{' '}
+                <span className="text-blue-900">${data.currentPrice}</span>
               </div>
             )}
             {data.recommendation && (
-              <div>
-                <span className="font-semibold">Recommendation:</span> {data.recommendation}
+              <div className="p-2 bg-green-50 rounded">
+                <span className="font-semibold text-green-800">Recommendation:</span>{' '}
+                <span className="text-green-900">{data.recommendation}</span>
               </div>
             )}
             {data.targetPrice && (
-              <div>
-                <span className="font-semibold">Target Price:</span> ${data.targetPrice}
+              <div className="p-2 bg-purple-50 rounded">
+                <span className="font-semibold text-purple-800">Target Price:</span>{' '}
+                <span className="text-purple-900">${data.targetPrice}</span>
               </div>
             )}
             {data.riskLevel && (
-              <div>
-                <span className="font-semibold">Risk Level:</span> {data.riskLevel}
+              <div className="p-2 bg-yellow-50 rounded">
+                <span className="font-semibold text-yellow-800">Risk Level:</span>{' '}
+                <span className="text-yellow-900">{data.riskLevel}</span>
               </div>
             )}
             {data.allocationPercentage && (
-              <div>
-                <span className="font-semibold">Suggested Allocation:</span> {data.allocationPercentage}%
+              <div className="p-2 bg-indigo-50 rounded">
+                <span className="font-semibold text-indigo-800">Suggested Allocation:</span>{' '}
+                <span className="text-indigo-900">{data.allocationPercentage}%</span>
               </div>
             )}
           </div>
         )}
         
         {data.analysis && (
-          <div className="mt-2">
-            <span className="font-semibold">Analysis:</span>
-            <p className="text-xs text-gray-600 mt-1">{data.analysis}</p>
+          <div className="mt-3 p-3 bg-blue-50 rounded">
+            <span className="font-semibold text-blue-800 block mb-1">Analysis:</span>
+            <p className="text-sm text-blue-700 leading-relaxed">{data.analysis}</p>
           </div>
         )}
         
         {data.technicalIndicators && (
-          <div className="mt-2">
-            <span className="font-semibold">Technical Indicators:</span>
-            <div className="grid grid-cols-3 gap-1 mt-1 text-xs">
+          <div className="mt-3">
+            <span className="font-semibold text-gray-800 block mb-2">Technical Indicators:</span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
               {Object.entries(data.technicalIndicators).map(([key, value]) => (
-                <div key={key}>
-                  <span className="font-medium">{key}:</span> {
-                    typeof value === 'object' ? JSON.stringify(value) : value
-                  }
+                <div key={key} className="p-2 bg-gray-50 rounded text-xs">
+                  <span className="font-medium text-gray-700 capitalize block">
+                    {key.replace(/([A-Z])/g, ' $1').trim()}:
+                  </span>
+                  <span className="text-gray-600 mt-1 block">
+                    {typeof value === 'object' ? JSON.stringify(value) : String(value)}
+                  </span>
                 </div>
               ))}
             </div>
@@ -148,47 +179,58 @@ const ChatMessage = ({ message }) => {
   };
 
   return (
-    <div className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-      <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${getMessageStyle()}`}>
+    <div className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'} mb-4`}>
+      <div className={`max-w-xs sm:max-w-sm lg:max-w-md px-4 py-3 rounded-lg shadow-sm ${getMessageStyle()}`}>
         {/* Message header with icon for special message types */}
         <div className="flex items-start gap-2">
           {message.isError && <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />}
           {message.isAnalysis && <BarChart3 className="h-4 w-4 mt-0.5 flex-shrink-0" />}
           
-          <div className="flex-1">
-            <p className="text-sm">{message.text}</p>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm leading-relaxed break-words">{message.text}</p>
             
             {/* Show analysis data if available */}
             {message.data && (
-              <div className="mt-2">
+              <div className="mt-3">
                 <button
                   onClick={() => setShowData(!showData)}
-                  className="flex items-center gap-1 text-xs opacity-70 hover:opacity-100 transition-opacity"
+                  className="flex items-center gap-1 text-xs opacity-70 hover:opacity-100 transition-opacity duration-200 focus:outline-none focus:opacity-100"
+                  aria-expanded={showData}
                 >
-                  {showData ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                  {showData ? 
+                    <ChevronUp className="h-3 w-3" /> : 
+                    <ChevronDown className="h-3 w-3" />
+                  }
                   {showData ? 'Hide Details' : 'Show Details'}
                 </button>
                 
-                {showData && renderStockData(message.data)}
+                {showData && (
+                  <div className="animate-in slide-in-from-top-2 duration-200">
+                    {renderStockData(message.data)}
+                  </div>
+                )}
               </div>
             )}
             
             {/* Show raw data for debugging (only in development) */}
             {message.data && process.env.NODE_ENV === 'development' && (
               <details className="mt-2">
-                <summary className="text-xs opacity-70 cursor-pointer">Debug Data</summary>
-                <pre className="text-xs mt-1 p-2 bg-black bg-opacity-10 rounded overflow-auto max-h-40">
+                <summary className="text-xs opacity-70 cursor-pointer hover:opacity-100 transition-opacity">
+                  Debug Data
+                </summary>
+                <pre className="text-xs mt-2 p-3 bg-black bg-opacity-10 rounded overflow-auto max-h-40 whitespace-pre-wrap break-all">
                   {JSON.stringify(message.data, null, 2)}
                 </pre>
               </details>
             )}
             
-            <p className="text-xs mt-1 opacity-70">{message.timestamp}</p>
+            <p className="text-xs mt-2 opacity-70 text-right">
+              {message.timestamp}
+            </p>
           </div>
         </div>
       </div>
     </div>
   );
 };
-
 export default ChatMessage;

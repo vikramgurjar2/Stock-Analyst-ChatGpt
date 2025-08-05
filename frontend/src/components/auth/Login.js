@@ -1,15 +1,15 @@
-import React, { useState, useContext } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { AuthContext } from '../../context/AuthContext';
-import { authService } from '../../services/authService';
-import LoadingSpinner from '../common/LoadingSpinner';
-import ErrorMessage from '../common/ErrorMessage';
-import './Login.css';
+import React, { useState, useContext } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { AuthContext } from "../../context/AuthContext";
+import { authService } from "../../services/authService";
+import LoadingSpinner from "../common/LoadingSpinner";
+import ErrorMessage from "../common/ErrorMessage";
+import "./Login.css";
 
 const Login = () => {
   const [formData, setFormData] = useState({
-    email: '',
-    password: ''
+    email: "",
+    password: "",
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -20,20 +20,20 @@ const Login = () => {
   const location = useLocation();
 
   // Get the intended destination or default to dashboard
-  const from = location.state?.from?.pathname || '/dashboard';
+  const from = location.state?.from?.pathname || "/dashboard";
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
 
     // Clear specific field error when user starts typing
     if (errors[name]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [name]: ''
+        [name]: "",
       }));
     }
   };
@@ -43,14 +43,14 @@ const Login = () => {
 
     // Email validation
     if (!formData.email) {
-      newErrors.email = 'Email is required';
+      newErrors.email = "Email is required";
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email address';
+      newErrors.email = "Please enter a valid email address";
     }
 
     // Password validation
     if (!formData.password) {
-      newErrors.password = 'Password is required';
+      newErrors.password = "Password is required";
     }
 
     setErrors(newErrors);
@@ -59,7 +59,7 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -69,40 +69,40 @@ const Login = () => {
 
     try {
       const response = await authService.login(formData);
-      
+
       if (response.success) {
         // Update auth context with user data
         await login(response.data.user, response.data.data.token);
-        
+
         // Navigate to intended destination
         navigate(from, { replace: true });
       } else {
-        setErrors({ 
-          general: response.message || 'Login failed. Please try again.' 
+        setErrors({
+          general: response.message || "Login failed. Please try again.",
         });
       }
     } catch (error) {
-      console.error('Login error:', error);
-      
+      console.error("Login error:", error);
+
       // Handle different types of errors
       if (error.response?.status === 401) {
-        setErrors({ 
-          general: 'Invalid email or password. Please try again.' 
+        setErrors({
+          general: "Invalid email or password. Please try again.",
         });
       } else if (error.response?.status === 429) {
-        setErrors({ 
-          general: 'Too many login attempts. Please try again later.' 
+        setErrors({
+          general: "Too many login attempts. Please try again later.",
         });
       } else if (error.response?.data?.errors) {
         // Handle validation errors from backend
         const backendErrors = {};
-        error.response.data.errors.forEach(err => {
+        error.response.data.errors.forEach((err) => {
           backendErrors[err.field] = err.message;
         });
         setErrors(backendErrors);
       } else {
-        setErrors({ 
-          general: 'Network error. Please check your connection and try again.' 
+        setErrors({
+          general: "Network error. Please check your connection and try again.",
         });
       }
     } finally {
@@ -113,22 +113,24 @@ const Login = () => {
   const handleDemoLogin = async (userType) => {
     const demoCredentials = {
       analyst: {
-        email: 'demo.analyst@example.com',
-        password: 'demo123'
+        email: "demo.analyst@example.com",
+        password: "demo123",
       },
       investor: {
-        email: 'demo.investor@example.com',
-        password: 'demo123'
-      }
+        email: "demo.investor@example.com",
+        password: "demo123",
+      },
     };
 
     setFormData(demoCredentials[userType]);
-    
+
     // Auto-submit after setting demo credentials
     setTimeout(() => {
-      document.getElementById('login-form').dispatchEvent(
-        new Event('submit', { cancelable: true, bubbles: true })
-      );
+      document
+        .getElementById("login-form")
+        .dispatchEvent(
+          new Event("submit", { cancelable: true, bubbles: true })
+        );
     }, 100);
   };
 
@@ -140,9 +142,7 @@ const Login = () => {
           <p>Sign in to your Stock Analyst account</p>
         </div>
 
-        {errors.general && (
-          <ErrorMessage message={errors.general} />
-        )}
+        {errors.general && <ErrorMessage message={errors.general} />}
 
         <form id="login-form" onSubmit={handleSubmit} className="login-form">
           <div className="form-group">
@@ -153,26 +153,24 @@ const Login = () => {
               name="email"
               value={formData.email}
               onChange={handleInputChange}
-              className={`form-input ${errors.email ? 'error' : ''}`}
+              className={`form-input ${errors.email ? "error" : ""}`}
               placeholder="Enter your email"
               disabled={isLoading}
               autoComplete="email"
             />
-            {errors.email && (
-              <span className="error-text">{errors.email}</span>
-            )}
+            {errors.email && <span className="error-text">{errors.email}</span>}
           </div>
 
           <div className="form-group">
             <label htmlFor="password">Password</label>
             <div className="password-input-container">
               <input
-                type={showPassword ? 'text' : 'password'}
+                type={showPassword ? "text" : "password"}
                 id="password"
                 name="password"
                 value={formData.password}
                 onChange={handleInputChange}
-                className={`form-input ${errors.password ? 'error' : ''}`}
+                className={`form-input ${errors.password ? "error" : ""}`}
                 placeholder="Enter your password"
                 disabled={isLoading}
                 autoComplete="current-password"
@@ -182,9 +180,9 @@ const Login = () => {
                 className="password-toggle"
                 onClick={() => setShowPassword(!showPassword)}
                 disabled={isLoading}
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                aria-label={showPassword ? "Hide password" : "Show password"}
               >
-                {showPassword ? '👁️' : '👁️‍🗨️'}
+                {showPassword ? "👁️" : "👁️‍🗨️"}
               </button>
             </div>
             {errors.password && (
@@ -203,12 +201,8 @@ const Login = () => {
             </Link>
           </div>
 
-          <button
-            type="submit"
-            className="login-button"
-            disabled={isLoading}
-          >
-            {isLoading ? <LoadingSpinner size="small" /> : 'Sign In'}
+          <button type="submit" className="login-button" disabled={isLoading}>
+            {isLoading ? <LoadingSpinner /> : "Sign In"}
           </button>
         </form>
 
@@ -220,7 +214,7 @@ const Login = () => {
             <button
               type="button"
               className="demo-button analyst"
-              onClick={() => handleDemoLogin('analyst')}
+              onClick={() => handleDemoLogin("analyst")}
               disabled={isLoading}
             >
               Demo Analyst
@@ -228,7 +222,7 @@ const Login = () => {
             <button
               type="button"
               className="demo-button investor"
-              onClick={() => handleDemoLogin('investor')}
+              onClick={() => handleDemoLogin("investor")}
               disabled={isLoading}
             >
               Demo Investor
@@ -238,7 +232,7 @@ const Login = () => {
 
         <div className="login-footer">
           <p>
-            Don't have an account?{' '}
+            Don't have an account?{" "}
             <Link to="/register" className="register-link">
               Sign up here
             </Link>

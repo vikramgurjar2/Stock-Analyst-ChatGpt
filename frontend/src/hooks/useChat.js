@@ -126,7 +126,7 @@ export const useChat = (selectedStock) => {
 
       const errorMessage = {
         id: Date.now(),
-        text: `Sorry, I couldn't fetch the analysis for ${symbol}. Error: ${err.message}`,
+        text: `Sorry, I couldn't fetch the analysis for ${symbol} due to exceed stock api call limit. Error: ${err.message}`,
         sender: 'ai',
         timestamp: new Date().toLocaleTimeString(),
         isError: true

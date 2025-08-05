@@ -1,10 +1,10 @@
-import React from 'react';
+import React from "react";
 
-const LoadingSpinner = ({ message = 'Loading...' }) => {
+const LoadingSpinner = ({ message = "Loading..." }) => {
   return (
     <div className="loading-spinner">
       <div className="spinner"></div>
-      {message && <p style={{ marginTop: '10px', color: '#666' }}>{message}</p>}
+      {message && <p style={{ marginTop: "2px", color: "#666" }}>{message}</p>}
     </div>
   );
 };

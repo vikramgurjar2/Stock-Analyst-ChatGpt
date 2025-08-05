@@ -4,7 +4,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #ebedf4 0%, #e4dee9 100%);
   padding: 20px;
 }
 
@@ -26,7 +26,7 @@
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, #667eea, #764ba2);
+  background: linear-gradient(90deg, #dde0ec, #764ba2);
 }
 
 .login-header {
@@ -160,7 +160,7 @@
 }
 
 .login-button {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #7e7ecf 0%, #764ba2 100%);
   color: white;
   border: none;
   padding: 14px 24px;
