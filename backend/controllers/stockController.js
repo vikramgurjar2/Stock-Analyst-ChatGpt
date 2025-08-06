@@ -129,6 +129,7 @@ const fetchStockData = async (symbol, useCache = true) => {
 const getStockQuote = async (req, res) => {
   try {
     const { symbol } = req.params;
+    console.log("Fetching stock quote for:", symbol);
 
     if (!symbol) {
       return res.status(400).json({
